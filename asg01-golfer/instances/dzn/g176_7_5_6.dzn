@@ -1,4 +1,4 @@
 
 n_groups = 7;
-n_groups = 5;
-n_groups = 6;
+n_per_group = 5;
+n_rounds = 6;

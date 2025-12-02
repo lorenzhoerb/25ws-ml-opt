@@ -11,11 +11,15 @@ max_n_rounds=10
 
 instance_count=1
 
-csv_file="instances.csv"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-mkdir -p ./dzn
+# CSV output file
+csv_file="${SCRIPT_DIR}/instances.csv"
 
-echo "instance_id;n_groups;n_per_group;rounds" > $csv_file
+# Create dzn folder relative to the script
+mkdir -p "${SCRIPT_DIR}/dzn"
+
+echo "instance_id;n_groups;n_per_group;n_rounds" > $csv_file
 
 for (( group=min_n_groups; group<=max_n_groups; group++ ))
 do
@@ -31,11 +35,11 @@ do
             echo "${instance_id};${group};${per_group};${round}" >> $csv_file
 
             # generate MiniZinc data file 
-            dzn_file=./dzn/${file}.dzn
+            dzn_file="${SCRIPT_DIR}/dzn/${file}.dzn"
             echo "" > $dzn_file
             echo "n_groups = ${group};" >> $dzn_file
-            echo "n_groups = ${per_group};" >> $dzn_file
-            echo "n_groups = ${round};" >> $dzn_file
+            echo "n_per_group = ${per_group};" >> $dzn_file
+            echo "n_rounds = ${round};" >> $dzn_file
 
             ((instance_count++))
         done

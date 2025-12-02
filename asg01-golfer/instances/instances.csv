@@ -1,4 +1,4 @@
-instance_id;n_groups;n_per_group;rounds
+instance_id;n_groups;n_per_group;n_rounds
 g1;3;2;2
 g2;3;2;3
 g3;3;2;4
