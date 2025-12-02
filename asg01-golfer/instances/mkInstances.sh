@@ -28,7 +28,7 @@ do
         for (( round=min_n_rounds; round<=max_n_rounds; round++ ))
         do
             instance_id="g${instance_count}"
-            file="${instance_id}_${group}_${per_group}_${round}"
+            file="golfers_${group}_${per_group}_${round}_${instance_id}"
             echo "Generating instance ${file}..."
 
             # appends to instance.csv
