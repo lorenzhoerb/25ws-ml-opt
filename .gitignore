@@ -1,0 +1,14 @@
+DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# VSCode / JetBrains
+.vscode/
+.idea/
+
+
+*.DS_Store
+*.directory
