@@ -7,7 +7,7 @@ class MiniZincGolferSolver:
     '''
     Solver for the Social Golfer Problem using minizinc.
     Minizinc must be installed locally and the solver must be available.
-    List available solvers using `minizinc --sovlers`
+    List available solvers using `minizinc --solvers`
     '''
 
     def __init__(
