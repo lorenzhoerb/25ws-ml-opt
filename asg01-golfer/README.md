@@ -8,6 +8,14 @@ The coordinator of a local golf club has come to you with the following problem.
 
 Full problem description: http://www.csplib.org/prob/prob010/index.html 
 
+## Tasks
+
+- **Task 1:** implement solution:
+   - **Task 1.1:** using exact method 
+   - **Task 1.2:** using heuristic method
+- **Task 2:** Implement a framework for automated algorithm selection that leverages machine learning techniques.
+
+
 ## Approaches 
 
 This project implements two solution strategies:
