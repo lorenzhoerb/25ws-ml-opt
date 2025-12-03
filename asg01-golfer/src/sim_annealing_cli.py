@@ -1,5 +1,5 @@
 import sys
-from golfers import solve_golfer
+from sim_annealing import SimAnnealingGolferSolver
 
 def print_usage_and_exit():
     print(f"USAGE:")
@@ -36,11 +36,13 @@ def main():
 
     n_groups, n_per_group, n_rounds = parse_instance()
 
-    print(f"Solving instance n_groups={n_groups}, n_per_group={n_per_group}, n_rounds={n_rounds}...")
 
-    sol, cost, is_optimal = solve_golfer(n_groups, n_per_group, n_rounds)
+    solver = SimAnnealingGolferSolver(T=300, loops=1000, alpha=0.998)
+    print(f"Solving instance (n_groups={n_groups}, n_per_group={n_per_group}, n_rounds={n_rounds}) with hyperparameters (T={solver.T}, min_T={solver.min_T}, alpha={solver.alpha}, loops={solver.loops})...")
 
-    print("-------------")
+    sol, cost, is_optimal = solver.solve(n_groups, n_per_group, n_rounds)
+
+    print("--------------------------")
 
     print(f"Optimal Solution:\t", is_optimal)
     print(f"Cost:\t\t\t", cost)
