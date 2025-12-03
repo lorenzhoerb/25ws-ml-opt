@@ -12,3 +12,8 @@ Thumbs.db
 
 *.DS_Store
 *.directory
+
+.Python
+venv
+.venv
+__pycache__/
