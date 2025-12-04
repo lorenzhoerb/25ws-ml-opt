@@ -19,7 +19,7 @@ csv_file="${SCRIPT_DIR}/instances.csv"
 # Create dzn folder relative to the script
 mkdir -p "${SCRIPT_DIR}/dzn"
 
-echo "instance_id;n_groups;n_per_group;n_rounds" > $csv_file
+echo "instance_id,n_groups,n_per_group,n_rounds" > $csv_file
 
 for (( group=min_n_groups; group<=max_n_groups; group++ ))
 do
@@ -32,7 +32,7 @@ do
             echo "Generating instance ${file}..."
 
             # appends to instance.csv
-            echo "${instance_id};${group};${per_group};${round}" >> $csv_file
+            echo "${instance_id},${group},${per_group},${round}" >> $csv_file
 
             # generate MiniZinc data file 
             dzn_file="${SCRIPT_DIR}/dzn/${file}.dzn"
