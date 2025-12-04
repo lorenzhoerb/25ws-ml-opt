@@ -1,0 +1,2 @@
+from solvers.sim_annealing import SimAnnealingGolferSolver
+from solvers.mzn_solver import MiniZincGolferSolver

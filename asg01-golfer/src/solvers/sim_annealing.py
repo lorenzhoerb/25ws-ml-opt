@@ -1,8 +1,11 @@
 import math 
 import random
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Optional
 import numpy as np
 from utils import cost, get_pair_counts
+import time
+from datetime import timedelta
+
 
 class SimAnnealingGolferSolver:
     '''
@@ -15,19 +18,23 @@ class SimAnnealingGolferSolver:
         min_T: float = 1e-3,
         alpha: float = 0.98,
         loops: int = 100,
+        time_limit: Optional[timedelta] = None,  # <-- timedelta now
+
         cost: Callable[[np.ndarray], float] = cost,
     ) -> None:
         self.T: float = T
         self.min_T: float = min_T
         self.alpha: float = alpha
         self.loops: int = loops
+        self.time_limit = time_limit
+
 
         if cost is None:
             raise ValueError("A cost function must be provided")
 
         self.cost: Callable[[np.ndarray], float] = cost
 
-    def solve(self, n_groups: int, n_per_group: int, n_rounds: int) -> Tuple[np.ndarray, float, bool]:
+    def solve(self, n_groups: int, n_per_group: int, n_rounds: int) -> np.ndarray:
         '''
         Tries to solves the given golfer instance using simulated annealing.
         
@@ -37,6 +44,8 @@ class SimAnnealingGolferSolver:
             - success (bool): True if a valid solution was found (cost == 0)
         '''
         local_T = self.T
+        start_time = time.time()
+
 
         current_solution = self._generate_initial_solution(n_groups, n_per_group, n_rounds)
         current_cost = cost(current_solution)
@@ -45,9 +54,13 @@ class SimAnnealingGolferSolver:
         best_cost = current_cost
 
         while local_T > self.min_T:
+
+            if self._timed_out(start_time):
+                break
+
             for _ in range(self.loops):
 
-                new_solution = self._neighbor(current_solution)
+                new_solution = self._neighbor_v2(current_solution)
                 new_cost = self.cost(new_solution)
                 delta = new_cost - current_cost
 
@@ -62,12 +75,19 @@ class SimAnnealingGolferSolver:
                 
                 if best_cost == 0:
                     # stopping criteria: found optimal solution
-                    return best_solution, best_cost, best_cost == 0
+                    return best_solution
 
             local_T *= self.alpha
 
 
-        return best_solution, best_cost, best_cost == 0
+        return best_solution
+        
+    def _timed_out(self, start_time: float) -> bool:
+        '''Check if time limit has been reached (if enabled).'''
+        return (
+                self.time_limit is not None and
+                (time.time() - start_time) >= self.time_limit.total_seconds()
+            )
 
     def _generate_initial_solution(self, n_groups: int, n_per_group: int, n_rounds: int) -> np.ndarray:
         n_golfers = n_groups * n_per_group

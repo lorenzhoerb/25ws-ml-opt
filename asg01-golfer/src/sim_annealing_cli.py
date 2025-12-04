@@ -1,5 +1,5 @@
 import sys
-from sim_annealing import SimAnnealingGolferSolver
+from solvers import SimAnnealingGolferSolver
 
 def print_usage_and_exit():
     print(f"USAGE:")
