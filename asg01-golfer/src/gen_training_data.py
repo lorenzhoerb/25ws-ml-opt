@@ -1,6 +1,9 @@
+"""
+This script takes a evaluation CSV and computes features and the target class for all instances.
+It then saves the resulting dataset as CSV.
+"""
 import pandas as pd
 from pathlib import Path
-
 
 
 def compute_instance_features(row: pd.Series) -> pd.Series:
