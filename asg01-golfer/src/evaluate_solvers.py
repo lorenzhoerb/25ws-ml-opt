@@ -94,15 +94,14 @@ def evaluate_solvers(df_instances: pd.DataFrame, max_workers: int = 4, instance_
 
 # Example usage
 if __name__ == "__main__":
-    df_instances = pd.read_csv("../instances/instances.csv")
+    df_instances = pd.read_csv("../data/instances/instances.csv")
+    output_csv_path="../data/evaluation/solver_evaluation_results.csv"
 
     df_results = evaluate_solvers(
         df_instances,
         instance_time_limit=timedelta(seconds=2),
         max_workers=4
     )
-
-    output_csv_path="../data/evaluation/solver_evaluation_results.csv"
 
     Path(output_csv_path).parent.mkdir(parents=True, exist_ok=True)
     df_results.to_csv(output_csv_path, index=False)

@@ -1,8 +1,8 @@
 .PHONY: clean
 
 clean:
-	rm -rf ./instances/dzn
-	rm ./instances/instances.csv
+	rm -rf ./data/instances/dzn
+	rm ./data/instances/instances.csv
 
 gen-instances:
-	./instances/mkInstances.sh
+	./data/instances/mkInstances.sh
