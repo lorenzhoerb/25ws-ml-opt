@@ -38,13 +38,11 @@ class MiniZincGolferSolver:
             print(f"Solver failed: {e}")
             return None
 
-        if result is None:
-            return None
-
         if not result.status.has_solution():
             return None
 
         schedule = result["schedule"]
+        
         if not schedule:
             return None
         

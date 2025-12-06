@@ -32,22 +32,39 @@ constraint forall(r in Rounds)(
 
 % C2: Ensure that any pair of golfers plays together at most once across all rounds
 % for any two golfers g1 and g2 where g1 != g2, they can't play in a group more then once
-constraint forall(g1, g2 in Golfers where g1 < g2)(
-    count(r in Rounds, gr in Groups, c, c2 in GroupCapacity where c < c2)(
-        (schedule[r,gr,c] == g1 /\ schedule[r,gr,c2] == g2) \/ 
-        (schedule[r,gr,c] == g2 /\ schedule[r,gr,c2] == g1)
 
-    ) <= 1
-);
+%constraint forall(g1, g2 in Golfers where g1 < g2)(
+%    count(r in Rounds, gr in Groups, c, c2 in GroupCapacity where c < c2)(
+%        (schedule[r,gr,c] == g1 /\ schedule[r,gr,c2] == g2) \/ 
+%        (schedule[r,gr,c] == g2 /\ schedule[r,gr,c2] == g1)
+%
+%    ) <= 1
+%);
+
+% Helper: count how many times a given pair (g1,g2) plays together
+function var int: pair_count(int: g1, int: g2) =
+    sum(r in Rounds, gr in Groups, c, c2 in GroupCapacity where c < c2)(
+        bool2int(
+            (schedule[r,gr,c] == g1 /\ schedule[r,gr,c2] == g2) \/
+            (schedule[r,gr,c] == g2 /\ schedule[r,gr,c2] == g1)
+        )
+    );
+
+% Count violations (pair appears more than once)
+array[Golfers,Golfers] of var int: pair_violations =
+    array2d(Golfers,Golfers, [ if g1 < g2 then max(0, pair_count(g1,g2) - 1)^2 else 0 endif 
+                                | g1 in Golfers, g2 in Golfers ]);
+
+% Total cost = sum of all pair violations
+var int: total_pair_cost = sum(g1,g2 in Golfers)(pair_violations[g1,g2]);
 
 
-solve satisfy;
-
+solve minimize total_pair_cost;
 
 % Readable output
 output [
   "Social Golfer Schedule:\n\n"
-] ++
+] ++ [" cost: " ++ show(total_pair_cost) ++ "\n\n"] ++
 [
   "Round " ++ show(r) ++ ": " ++
   let {
