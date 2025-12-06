@@ -18,7 +18,8 @@ class SimAnnealingGolferSolver:
         min_T: float = 1e-3,
         alpha: float = 0.98,
         loops: int = 100,
-        time_limit: Optional[timedelta] = None,  # <-- timedelta now
+        stagnation_limit: Optional[int] = None,
+        time_limit: Optional[timedelta] = None,  
 
         cost: Callable[[np.ndarray], float] = cost,
     ) -> None:
@@ -26,6 +27,7 @@ class SimAnnealingGolferSolver:
         self.min_T: float = min_T
         self.alpha: float = alpha
         self.loops: int = loops
+        self.stagnation_limit = stagnation_limit
         self.time_limit = time_limit
 
 
@@ -46,6 +48,8 @@ class SimAnnealingGolferSolver:
         local_T = self.T
         start_time = time.time()
 
+        stagnation_limit = self.stagnation_limit 
+        stagnation_counter = 0
 
         current_solution = self._generate_initial_solution(n_groups, n_per_group, n_rounds)
         current_cost = cost(current_solution)
@@ -54,10 +58,6 @@ class SimAnnealingGolferSolver:
         best_cost = current_cost
 
         while local_T > self.min_T:
-
-            if self._timed_out(start_time):
-                break
-
             for _ in range(self.loops):
 
                 new_solution = self._neighbor_v2(current_solution)
@@ -72,8 +72,13 @@ class SimAnnealingGolferSolver:
                     if new_cost < best_cost:
                         best_cost = new_cost
                         best_solution = new_solution.copy()
+                        stagnation_counter = 0
+                    else:
+                        stagnation_counter += 1
+                else:
+                    stagnation_counter += 1
                 
-                if best_cost == 0:
+                if best_cost == 0 or (stagnation_limit is not None and stagnation_counter >= stagnation_limit) or self._timed_out(start_time):
                     # stopping criteria: found optimal solution
                     return best_solution
 
