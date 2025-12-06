@@ -1,3 +1,15 @@
+"""
+This script evaluates Social Golfer Problem instances using two solvers:
+1. MiniZinc (exact/optimization-based)
+2. Simulated Annealing (heuristic)
+
+For each instance, it measures:
+- Whether a solution was found
+- Solution cost
+- Solver runtime
+
+Results for all instances are collected in a DataFrame and saved to a CSV.
+"""
 import pandas as pd
 from solvers import SimAnnealingGolferSolver, MiniZincGolferSolver
 from utils import cost
@@ -8,10 +20,6 @@ from tqdm import tqdm
 from datetime import timedelta
 from typing import Optional
 
-# Instantiate solvers (can be done per process if needed)
-# We will instantiate inside the worker to avoid issues with processes
-# mznSolver = MiniZincGolferSolver()
-# simSolver = SimAnnealingGolferSolver()
 def evaluate_instance(instance: pd.Series, time_limit: Optional[timedelta] = None) -> pd.Series:
     """
     Evaluate a single SGP instance with both solvers.
@@ -23,7 +31,7 @@ def evaluate_instance(instance: pd.Series, time_limit: Optional[timedelta] = Non
 
     # Instantiate solvers per process to avoid shared state issues
     mznSolver = MiniZincGolferSolver(model="./solvers/golfers.mzn", time_limit=time_limit)
-    simSolver = SimAnnealingGolferSolver(T=200, alpha=0.98, loops=2000, time_limit=time_limit)
+    simSolver = SimAnnealingGolferSolver(T=200, alpha=0.998, loops=1000, time_limit=time_limit, stagnation_limit=None)
 
     n_groups = int(instance["n_groups"])
     n_per_group = int(instance["n_per_group"])
@@ -34,19 +42,24 @@ def evaluate_instance(instance: pd.Series, time_limit: Optional[timedelta] = Non
     start = time.time()
     mzn_sol = mznSolver.solve(n_groups, n_per_group, n_rounds) 
     mzn_duration = time.time() - start
-    mzn_cost = cost(mzn_sol) if mzn_sol is not None else 1000000000000000
+    mzn_cost = cost(mzn_sol) if mzn_sol is not None else 0
 
     
     # Run SimAnnealing solver
     start = time.time()
     sim_sol = simSolver.solve(n_groups, n_per_group, n_rounds) 
     sim_duration = time.time() - start
-    sim_cost = cost(sim_sol) if sim_sol is not None else 1000000000000000
+    sim_cost = cost(sim_sol) if sim_sol is not None else 0
 
     
     # Add metrics to row
+    instance["mzn_has_solution"] = mzn_sol is not None
+    instance["mzn_time_exceeded"] = mzn_duration > time_limit.seconds if time_limit else False
     instance["mzn_cost"] = mzn_cost
     instance["mzn_duration_seconds"] = round(mzn_duration, 4)
+
+    instance["sim_has_solution"] = sim_sol is not None
+    instance["sim_time_exceeded"] = sim_duration > time_limit.seconds if time_limit else False
     instance["sim_cost"] = sim_cost
     instance["sim_duration_seconds"] = round(sim_duration, 4)
 
@@ -81,15 +94,15 @@ def evaluate_solvers(df_instances: pd.DataFrame, max_workers: int = 4, instance_
 
 # Example usage
 if __name__ == "__main__":
-    df_instances = pd.read_csv("../instances/instances.csv").head(10)
+    df_instances = pd.read_csv("../instances/instances.csv")
 
     df_results = evaluate_solvers(
         df_instances,
-        instance_time_limit=timedelta(seconds=10),
+        instance_time_limit=timedelta(seconds=2),
         max_workers=4
     )
 
-    output_csv_path="../data/solver_evaluation_results.csv"
+    output_csv_path="../data/evaluation/solver_evaluation_results.csv"
 
     Path(output_csv_path).parent.mkdir(parents=True, exist_ok=True)
     df_results.to_csv(output_csv_path, index=False)
