@@ -1,0 +1,12 @@
+instances: first 216
+time_limit: 20 second
+processing time: 15 minutes
+
+Hyper Parameters Simulated Annealing:
+T: 200
+alpha: 0.998
+loops: 1000
+stagnation_limit: 500
+
+
+
